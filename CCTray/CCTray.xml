@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Projects>
+  <Project name="MobileRedirectModule :: Build" activity="Sleeping" lastBuildStatus="Failure" lastBuildLabel="18" lastBuildTime="2014-01-24T10:56:13" webUrl="http://buildserver/build1">
+    <messages>
+      <message text="Terry Thomas &lt;terry@thomas.com&gt;" kind="Breakers" />
+    </messages>
+  </Project>
+  <Project name="MobileRedirectModule :: Build :: Build" activity="Sleeping" lastBuildStatus="Failure" lastBuildLabel="18" lastBuildTime="2014-01-24T10:56:13" webUrl="http://buildserver/build1">
+    <messages>
+      <message text="Terry Thomas &lt;terry@thomas.com&gt;" kind="Breakers" />
+    </messages>
+  </Project>
+</Projects>
