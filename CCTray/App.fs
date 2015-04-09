@@ -25,6 +25,10 @@ let createProject (project : CCTrayXmlProvider.Project) =
 let ProjectReadFromCCTray = Event<Project>()
 let ProjectStatusChanged = Event<string>()
 let projectState : Dictionary<_, _> = Dictionary()
+let projectIsInDeployments project = Seq.exists (fun x -> x = project.Name) deployments
+let projectIsInBuilds project = Seq.exists (fun x -> x = project.Name) builds
+let projectIsInDeploymentsOrBuilds project = (deployments @ builds) |> List.exists (fun x -> x = project.Name)
+let projectHasBeenSeenBefore project = projectState.ContainsKey project.Name
 
 let readCCTray ccTraySource _ = 
   let projects = 
@@ -37,6 +41,7 @@ let readCCTray ccTraySource _ =
         ps.Projects
         |> Seq.map createProject
         |> Seq.distinctBy (fun p -> p.Name)
+        |> Seq.filter projectIsInDeploymentsOrBuilds
   if projectState.Count = 0 then projects |> Seq.iter (fun x -> projectState.Add(x.Name, x))
   projects |> Seq.iter ProjectReadFromCCTray.Trigger
 
@@ -44,10 +49,6 @@ let createTimer (appConfig : AppConfig) =
   let timer = new Timer(appConfig.Interval, AutoReset = true)
   readCCTray appConfig.GetCCTray |> timer.Elapsed.Add
   timer.Start()
-
-let projectIsInDeployments project = Seq.exists (fun x -> x = project.Name) deployments
-let projectIsInBuilds project = Seq.exists (fun x -> x = project.Name) builds
-let projectHasBeenSeenBefore project = projectState.ContainsKey project.Name
 
 let (|Deployed|BuildStatusChanged|NoChange|) = 
   function 
@@ -65,11 +66,8 @@ let checkProjectStatus project =
   | NoChange -> ()
   projectState.[project.Name] <- project
 
-let projectIsInDeploymentsOrBuilds project = (deployments @ builds) |> List.exists (fun x -> x = project.Name)
-
 let run appConfig = 
   ProjectReadFromCCTray.Publish
-  |> Event.filter projectIsInDeploymentsOrBuilds
   |> Event.add checkProjectStatus
   ProjectStatusChanged.Publish |> Event.add appConfig.PostNotification
   readCCTray appConfig.GetCCTray None
